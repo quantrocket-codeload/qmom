@@ -76,10 +76,6 @@ class QuantitativeMomentum(Moonshot):
         positive_days_last_twelve_months_ranks = positive_days_last_twelve_months.where(have_momentum).rank(axis=1, ascending=False, pct=True)
         have_smooth_momentum = positive_days_last_twelve_months_ranks <= (self.SMOOTHEST_TOP_N_PCT/100)
 
-        # Save holdings to results for inspection
-        symbols = prices.loc["Symbol"].reindex(closes.index, method="ffill")
-        self.save_to_results("Holdings", symbols.where(have_smooth_momentum))
-
         signals = have_smooth_momentum.astype(int)
         return signals
 
