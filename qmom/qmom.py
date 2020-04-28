@@ -1,4 +1,4 @@
-# Copyright 2018 QuantRocket LLC - All Rights Reserved
+# Copyright 2020 QuantRocket LLC - All Rights Reserved
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ from moonshot import Moonshot
 from moonshot.commission import PerShareCommission
 
 class USStockCommission(PerShareCommission):
-    IB_COMMISSION_PER_SHARE = 0.005
+    BROKER_COMMISSION_PER_SHARE = 0.005
 
 class QuantitativeMomentum(Moonshot):
     """
@@ -40,7 +40,7 @@ class QuantitativeMomentum(Moonshot):
     """
 
     CODE = "qmom"
-    DB = "sharadar-1d"
+    DB = "sharadar-us-stk-1d"
     DB_FIELDS = ["Close", "Volume"]
     DOLLAR_VOLUME_TOP_N_PCT = 60
     DOLLAR_VOLUME_WINDOW = 90
@@ -50,7 +50,7 @@ class QuantitativeMomentum(Moonshot):
     MOMENTUM_EXCLUDE_MOST_RECENT_WINDOW = 22
     TOP_N_PCT = 10
     SMOOTHEST_TOP_N_PCT = 50
-    REBALANCE_INTERVAL = "Q-NOV" #  = end of quarter, fiscal year ends in Nov (= Nov 30, Feb 28, May 31, Aug 31); https://pandas.pydata.org/pandas-docs/stable/timeseries.html#anchored-offsets
+    REBALANCE_INTERVAL = "Q-NOV" #  = end of quarter, fiscal year ends in Nov (= Nov 30, Feb 28, May 31, Aug 31); https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#anchored-offsets
     COMMISSION_CLASS = USStockCommission
 
     def prices_to_signals(self, prices):
@@ -86,7 +86,7 @@ class QuantitativeMomentum(Moonshot):
 
         # Step 5: Rebalance portfolio before quarter-end to capture window-dressing seasonality effect
         # Resample daily to REBALANCE_INTERVAL, taking the last day's signal
-        # For pandas offset aliases, see https://pandas.pydata.org/pandas-docs/stable/timeseries.html#offset-aliases
+        # For pandas offset aliases, see https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#offset-aliases
         weights = weights.resample(self.REBALANCE_INTERVAL).last()
         # Reindex back to daily and fill forward
         weights = weights.reindex(prices.loc["Close"].index, method="ffill")
