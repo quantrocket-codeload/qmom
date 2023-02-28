@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import pandas as pd
 from moonshot import Moonshot
 from moonshot.commission import PerShareCommission
 
@@ -53,7 +54,7 @@ class QuantitativeMomentum(Moonshot):
     REBALANCE_INTERVAL = "Q-NOV" #  = end of quarter, fiscal year ends in Nov (= Nov 30, Feb 28, May 31, Aug 31); https://pandas.pydata.org/pandas-docs/stable/user_guide/timeseries.html#anchored-offsets
     COMMISSION_CLASS = USStockCommission
 
-    def prices_to_signals(self, prices):
+    def prices_to_signals(self, prices: pd.DataFrame):
 
         # Step 1.c: get a mask of stocks with adequate dollar volume
         closes = prices.loc["Close"]
@@ -79,7 +80,7 @@ class QuantitativeMomentum(Moonshot):
         signals = have_smooth_momentum.astype(int)
         return signals
 
-    def signals_to_target_weights(self, signals, prices):
+    def signals_to_target_weights(self, signals: pd.DataFrame, prices: pd.DataFrame):
         # Step 4: equal weights
         daily_signal_counts = signals.abs().sum(axis=1)
         weights = signals.div(daily_signal_counts, axis=0).fillna(0)
@@ -93,11 +94,11 @@ class QuantitativeMomentum(Moonshot):
 
         return weights
 
-    def target_weights_to_positions(self, weights, prices):
+    def target_weights_to_positions(self, weights: pd.DataFrame, prices: pd.DataFrame):
         # Enter the position the day after the signal
         return weights.shift()
 
-    def positions_to_gross_returns(self, positions, prices):
+    def positions_to_gross_returns(self, positions: pd.DataFrame, prices: pd.DataFrame):
         closes = prices.loc["Close"]
         position_ends = positions.shift()
 
@@ -107,7 +108,7 @@ class QuantitativeMomentum(Moonshot):
 
         return gross_returns
 
-    def order_stubs_to_orders(self, orders, prices):
+    def order_stubs_to_orders(self, orders: pd.DataFrame, prices: pd.DataFrame):
         orders["Exchange"] = "SMART"
         orders["OrderType"] = "MOC"
         orders["Tif"] = "DAY"
